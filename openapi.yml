@@ -1,0 +1,146 @@
+openapi: '3.0.2'
+info:
+  title: Customer API
+  version: '1.0'
+servers:
+  - url: https://api.server.test/v1
+
+paths:
+  /:
+    get:
+      tags:
+      - health
+      responses:
+        200:
+          description: "Everything is OK"
+          content:
+            application/json:
+              schema:
+                type: string
+        500:
+          description: "Something is wrong"
+
+  /customer:
+    get:
+      tags:
+      - customer
+      responses:
+        200:
+          description: The customer details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+    post:
+      tags:
+        - customer
+      description: Add a new customer
+      requestBody:
+        description: Customer to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        200:
+          description: The customer created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        500:
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+                
+  /customer/{id}:
+    get:
+      tags:
+      - customer
+      parameters:
+      - name: id
+        in: path
+        example: 122
+        description: The ID of the customer to be returned
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Details of customer with ID {id}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+        404:
+          description: The customer could not be found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "ID of the customer"
+          example: 122
+        first_name:
+          type: string
+          description: "Customer's first name"
+          example: 'Donald'
+        surname:
+          type: string
+          description: "Customer's last name"
+          example: 'Duck'
+        dob:
+          type: string
+          format: date
+          description: "Customer's Date of Birth"
+          example: '1925-09-26'
+        primary_address:
+          type: object
+          $ref: '#/components/schemas/Address'
+
+    Address:
+      type: object
+      properties:
+        line1:
+          type: string
+          description: "The first line of the address"
+          example: "Dagobert Lane 99"
+        line2:
+          type: string
+          description: "The second line of the address"
+          example: "c/o Minnie Mouse"
+        city:
+          type: string
+          example: "Ducktown"
+        postcode:
+          type: string
+          example: "DD9989"
+        country:
+          type: string
+          example: "USA"
+      required:
+        - line1
+        - postcode
+        - city
+        - country
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          example: '404'
+        message:
+          type: string
+          example: 'Customer could not be found'

@@ -1,0 +1,172 @@
+openapi: 3.0.2
+info:
+  title: Customer API
+  version: "1.0"
+servers:
+- url: https://api.server.test/v1
+paths:
+  /:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Everything is OK
+        "500":
+          description: Something is wrong
+      tags:
+      - health
+  /customer:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: The customer details
+      tags:
+      - customer
+    post:
+      description: Add a new customer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+        description: Customer to be created
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: The customer created
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error
+      tags:
+      - customer
+  /customer/{id}:
+    get:
+      parameters:
+      - description: The ID of the customer to be returned
+        example: 122
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Customer'
+                type: array
+          description: "Details of customer with ID {id}"
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The customer could not be found
+      tags:
+      - customer
+components:
+  schemas:
+    Customer:
+      example:
+        surname: Duck
+        dob: 1925-09-26T00:00:00.000+00:00
+        primary_address:
+          country: USA
+          city: Ducktown
+          postcode: DD9989
+          line2: c/o Minnie Mouse
+          line1: Dagobert Lane 99
+        id: "122"
+        first_name: Donald
+      properties:
+        id:
+          description: ID of the customer
+          example: "122"
+          title: id
+          type: string
+        first_name:
+          description: Customer's first name
+          example: Donald
+          title: first_name
+          type: string
+        surname:
+          description: Customer's last name
+          example: Duck
+          title: surname
+          type: string
+        dob:
+          description: Customer's Date of Birth
+          example: 1925-09-26
+          format: date
+          title: dob
+          type: string
+        primary_address:
+          $ref: '#/components/schemas/Address'
+      title: Customer
+      type: object
+    Address:
+      example:
+        country: USA
+        city: Ducktown
+        postcode: DD9989
+        line2: c/o Minnie Mouse
+        line1: Dagobert Lane 99
+      properties:
+        line1:
+          description: The first line of the address
+          example: Dagobert Lane 99
+          title: line1
+          type: string
+        line2:
+          description: The second line of the address
+          example: c/o Minnie Mouse
+          title: line2
+          type: string
+        city:
+          example: Ducktown
+          title: city
+          type: string
+        postcode:
+          example: DD9989
+          title: postcode
+          type: string
+        country:
+          example: USA
+          title: country
+          type: string
+      required:
+      - city
+      - country
+      - line1
+      - postcode
+      title: Address
+      type: object
+    Error:
+      properties:
+        code:
+          example: "404"
+          title: code
+          type: string
+        message:
+          example: Customer could not be found
+          title: message
+          type: string
+      title: Error
+      type: object
